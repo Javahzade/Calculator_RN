@@ -9,6 +9,7 @@ export default class App extends Component {
       resultText: '',
       calculationText: '',
       lastText: '',
+      opacityText: 1,
     };
   }
 
@@ -16,35 +17,39 @@ export default class App extends Component {
     this.setState({
       resultText: this.state.resultText + number,
       lastText: this.state.lastText + number,
-    });  
+      opacityText: 1,
+    });
   }
- 
+
   operatorPressed(operand) {
-    if (this.state.resultText === ''){
+    if (this.state.resultText === '') {
       this.setState({
         resultText: '',
         lastText: '',
+        opacityText: 1,
       });
-    }else {
-      if (this.state.resultText[this.state.resultText.length-1] === operand ){
+    } else {
+      if (this.state.resultText[this.state.resultText.length - 1] === operand) {
         this.setState({
           resultText: this.state.resultText,
           lastText: '',
+          opacityText: 1,
         });
-      }else {
+      } else {
         this.setState({
           resultText: this.state.resultText + operand,
           lastText: '',
+          opacityText: 1,
         });
       }
-      
     }
   }
   dotPressed(dot) {
-    if (!this.state.lastText.includes(dot)){
+    if (!this.state.lastText.includes(dot)) {
       this.setState({
         resultText: this.state.resultText + dot,
         lastText: this.state.lastText + dot,
+        opacityText: 1,
       });
     }
   }
@@ -54,6 +59,7 @@ export default class App extends Component {
       resultText: '',
       calculationText: '',
       lastText: '',
+      opacityText: 1,
     });
   }
 
@@ -61,28 +67,58 @@ export default class App extends Component {
     this.setState({
       resultText: '',
       lastText: '',
+      opacityText: 1,
     });
   }
 
-  deleteLast(text) {
+  deleteLast() {
     this.setState({
       resultText: this.state.resultText.slice(0, -1),
       lastText: this.state.lastText.slice(0, -1),
+      opacityText: 1,
     });
   }
 
-  calculate(text) {
-    this.setState({
-      calculationText: eval(this.state.resultText),
-    })
-  }
+  /* plusNegative() {
+    if (!this.state.lastText.includes('-')) {
+      this.setState({
+        lastText: '-' + this.state.lastText,
+        resultText: '-' + this.state.resultText,
+        opacityText: 1,
+      });
+    }else {
+      this.setState({
+        lastText: this.state.lastText.replace(/),
+        resultText: this.state.resultText,
+        opacityText: 1,
+      });
+    }
+  } */
 
+  calculate() {
+    const symbols = ['+', '-', '*', '/', '.'];
+    if (
+      symbols.includes(this.state.resultText[this.state.resultText.length - 1])
+    ) {
+      this.setState({
+        calculationText: '=' + eval(this.state.resultText.slice(0, -1)),
+        opacityText: 0.5,
+      });
+    }else {
+      this.setState({
+        calculationText: '=' + eval(this.state.resultText),
+        opacityText: 0.5,
+      });
+    }
+  }
 
   render() {
     return (
       <View style={styles.container}>
         <View style={styles.result}>
-          <Text style={styles.font2}>{this.state.resultText}</Text>
+          <Text style={[styles.font2, {opacity: this.state.opacityText}]}>
+            {this.state.resultText}
+          </Text>
         </View>
         <View style={styles.calculation}>
           <Text style={styles.font2}>{this.state.calculationText}</Text>
@@ -197,7 +233,7 @@ export default class App extends Component {
                 style={styles.icons}>
                 <Text style={styles.font}>+</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => this.calculate()}
                 style={styles.icons}>
                 <Text style={styles.font}>=</Text>
@@ -227,7 +263,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   buttons: {
-    flex: 7,
+    flex: 6,
     flexDirection: 'row',
     backgroundColor: 'black',
   },
@@ -271,5 +307,6 @@ const styles = StyleSheet.create({
   font2: {
     fontSize: 50,
     color: 'white',
+    opacity: 1,
   },
 });
