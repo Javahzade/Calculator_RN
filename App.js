@@ -10,57 +10,53 @@ export default class App extends Component {
       calculationText: '',
       lastText: '',
       opacityText: 1,
+      size: 50,
+      symbols: ['+', '-', '*', '/', '.'],
     };
   }
 
-  zeroPressed(zero){
+  zeroPressed(zero) {
     if (this.state.resultText === '' || this.state.resultText === zero) {
       this.setState({
         resultText: zero,
         lastText: zero,
         opacityText: 1,
-     });
-  }else {
-      this.setState({
-        resultText: this.state.resultText + zero,
-        lastText: this.state.lastText + zero,
-        opacityText: 1,
-     });
+        size: 50,
+      });
+    } else if (this.state.opacityText === 0.5) {
+      this.foo(zero);
+    } else {
+      if (this.state.lastText === '' || this.state.lastText !== zero) {
+        this.setState({
+          resultText: this.state.resultText + zero,
+          lastText: this.state.lastText + zero,
+          opacityText: 1,
+          size: 50,
+        });
+      }
+    }
   }
-}
 
-  numberPressed(number){
-    const symbols = ['+', '-', '*', '/', '.'];
-    if (this.state.resultText === '0'){
+  numberPressed(number) {
+    if (this.state.resultText === '0') {
       this.setState({
         resultText: number,
         lastText: number,
         opacityText: 1,
+        size: 50,
       });
-    }else if (this.state.calculationText !== '') {
-      if (symbols.includes(this.state.resultText[this.state.resultText.length - 1])) {
-        this.setState({
-          resultText: this.state.resultText + number,
-          lastText: this.state.lastText + number,
-          opacityText: 1,
-        });
-      }else {
-        this.setState({
-          resultText: number,
-          calculationText: '',
-          lastText: '',
-          opacityText: 1,
-        });
-      }
-    }else {
+    } else if (this.state.opacityText === 0.5) {
+      this.foo(number);
+    } else {
       this.setState({
         resultText: this.state.resultText + number,
         lastText: this.state.lastText + number,
         opacityText: 1,
+        size: 50,
       });
     }
   }
-    
+
   operatorPressed(operand) {
     const symbols = ['+', '-', '*', '/'];
     if (this.state.resultText === '') {
@@ -68,51 +64,78 @@ export default class App extends Component {
         resultText: '',
         lastText: '',
         opacityText: 1,
+        size: 50,
+      });
+    } else if (this.state.calculationText !== '') {
+      this.setState({
+        resultText:
+          this.state.calculationText.slice(
+            1,
+            this.state.calculationText.length,
+          ) + operand,
+        lastText: '',
+        opacityText: 1,
+        size: 50,
       });
     } else {
-      if (symbols.includes(this.state.resultText[this.state.resultText.length - 1])) {
+      if (
+        symbols.includes(
+          this.state.resultText[this.state.resultText.length - 1],
+        )
+      ) {
         this.setState({
           resultText: this.state.resultText.replace(/.$/, operand),
           lastText: '',
           opacityText: 1,
+          size: 50,
         });
       } else {
         this.setState({
           resultText: this.state.resultText + operand,
           lastText: '',
           opacityText: 1,
+          size: 50,
         });
       }
     }
   }
+
   dotPressed(dot) {
-    const symbols = ['+', '-', '*', '/', '.'];
-    if (this.state.lastText === ''){
+    if (this.state.lastText === '') {
       this.setState({
         resultText: this.state.resultText + '0' + dot,
         lastText: '0' + dot,
         opacityText: 1,
+        size: 50,
       });
-    }else if (this.state.calculationText !== '') {
-      if (symbols.includes(this.state.resultText[this.state.resultText.length - 1])) {
+    } else if (this.state.opacityText === 0.5) {
+      if (
+        this.state.symbols.includes(
+          this.state.resultText[this.state.resultText.length - 1],
+        )
+      ) {
         this.setState({
           resultText: this.state.resultText + dot,
           lastText: this.state.lastText + dot,
           opacityText: 1,
+          size: 50,
         });
-      }else {
+      } else {
         this.setState({
           resultText: '0' + dot,
+          lastText: '0' + dot,
           calculationText: '',
           opacityText: 1,
+          size: 50,
         });
       }
-    }else {
+    } else {
       if (!this.state.lastText.includes(dot)) {
         this.setState({
           resultText: this.state.resultText + dot,
           lastText: this.state.lastText + dot,
           opacityText: 1,
+          size: 50,
         });
       }
     }
@@ -124,14 +147,7 @@ export default class App extends Component {
       calculationText: '',
       lastText: '',
       opacityText: 1,
-    });
-  }
-
-  clearEntry() {
-    this.setState({
-      resultText: '',
-      lastText: '',
-      opacityText: 1,
+      size: 50,
     });
   }
 
@@ -140,33 +156,57 @@ export default class App extends Component {
       resultText: this.state.resultText.slice(0, -1),
       lastText: this.state.lastText.slice(0, -1),
       opacityText: 1,
+      size: 50,
     });
   }
 
   calculate() {
-    const symbols = ['+', '-', '*', '/', '.'];
-    const result = eval(this.state.resultText)
-  
-    if (isNaN(eval(result)) || result === Infinity || result === -Infinity ) {
+    let result = '';
+    if (
+      this.state.symbols.includes(
+        this.state.resultText[this.state.resultText.length - 1],
+      )
+    ) {
+      result = eval(this.state.resultText.slice(0, -1));
+    } else {
+      result = eval(this.state.resultText);
+    }
+    if (isNaN(eval(result)) || !isFinite(eval(result))) {
       this.setState({
         calculationText: 'На 0 делить нельзя!',
+        size: 40,
       });
-    }else {
-      if (
-        symbols.includes(this.state.resultText[this.state.resultText.length - 1])
-      ) {
-        this.setState({
-          calculationText: '=' + eval(this.state.resultText.slice(0, -1)),
-          opacityText: 0.5,
-        });
-      }else {
-        this.setState({
-          calculationText: '=' + result,
-          opacityText: 0.5,
-        });
-      }
+    } else {
+      this.setState({
+        calculationText: '=' + result,
+        opacityText: 0.5,
+        size: 50,
+      });
     }
-}
+  }
+
+  foo(num) {
+    if (
+      this.state.symbols.includes(
+        this.state.resultText[this.state.resultText.length - 1],
+      )
+    ) {
+      this.setState({
+        resultText: this.state.resultText + num,
+        lastText: this.state.lastText + num,
+        opacityText: 1,
+        size: 50,
+      });
+    } else {
+      this.setState({
+        resultText: num,
+        calculationText: '',
+        lastText: num,
+        opacityText: 1,
+        size: 50,
+      });
+    }
+  }
 
   render() {
     return (
@@ -177,24 +217,28 @@ export default class App extends Component {
           </Text>
         </View>
         <View style={styles.calculation}>
-          <Text style={styles.font}>{this.state.calculationText}</Text>
+          <Text
+            style={[
+              styles.font,
+              {fontSize: this.state.size, textAlign: 'center'},
+            ]}>
+            {this.state.calculationText}
+          </Text>
         </View>
         <View style={styles.buttons}>
           <View style={styles.numbers}>
             <View style={styles.row}>
               <TouchableOpacity
                 onPress={() => this.clear()}
-                style={[styles.icon, {backgroundColor: 'orange', borderRadius: 50}]}>
-                <Text style={{fontSize: 30}}>C</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => this.clearEntry()}
-                style={[styles.icon, {backgroundColor: 'orange', borderRadius: 50}]}>
-                <Text style={{fontSize: 30}}>CE</Text>
+                style={[styles.icon, {backgroundColor: 'orange', flex: 2}]}>
+                <Text style={{fontSize: 30}}>CLEAR</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => this.deleteLast()}
-                style={[styles.icon, {backgroundColor: 'orange', borderRadius: 50}]}>
+                style={[
+                  styles.icon,
+                  {backgroundColor: 'orange', borderRadius: 50},
+                ]}>
                 <Text style={{fontSize: 30}}>DL</Text>
               </TouchableOpacity>
             </View>
@@ -266,27 +310,42 @@ export default class App extends Component {
             <View style={styles.column}>
               <TouchableOpacity
                 onPress={() => this.operatorPressed('/')}
-                style={[styles.icon, {backgroundColor: 'orange', borderRadius: 50}]}>
+                style={[
+                  styles.icon,
+                  {backgroundColor: 'orange', borderRadius: 50},
+                ]}>
                 <Text style={{fontSize: 30}}>/</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => this.operatorPressed('*')}
-                style={[styles.icon, {backgroundColor: 'orange', borderRadius: 50}]}>
+                style={[
+                  styles.icon,
+                  {backgroundColor: 'orange', borderRadius: 50},
+                ]}>
                 <Text style={{fontSize: 30}}>*</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => this.operatorPressed('-')}
-                style={[styles.icon, {backgroundColor: 'orange', borderRadius: 50}]}>
+                style={[
+                  styles.icon,
+                  {backgroundColor: 'orange', borderRadius: 50},
+                ]}>
                 <Text style={{fontSize: 30}}>-</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => this.operatorPressed('+')}
-                style={[styles.icon, {backgroundColor: 'orange', borderRadius: 50}]}>
+                style={[
+                  styles.icon,
+                  {backgroundColor: 'orange', borderRadius: 50},
+                ]}>
                 <Text style={{fontSize: 30}}>+</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => this.calculate()}
-                style={[styles.icon, {backgroundColor: 'orange', borderRadius: 50}]}>
+                style={[
+                  styles.icon,
+                  {backgroundColor: 'orange', borderRadius: 50},
+                ]}>
                 <Text style={{fontSize: 30}}>=</Text>
               </TouchableOpacity>
             </View>
